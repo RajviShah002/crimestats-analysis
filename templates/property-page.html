@@ -1,0 +1,545 @@
+{% include 'partials/head.html' %}
+{% include 'partials/head.html' %}
+{% include 'partials/head.html' %}
+<body>
+	{% include 'partials/navbar.html' %}
+	<div class="container">
+		<div class="row">
+      <div class="main-header">
+        <h1 class="text-center">Property crimes in India</h1>
+      </div>
+    </div>
+
+    <p class="desc">We have classified the following crimes as property crimes: <strong>Arson, auto theft, burglary, dacoity, other theft, and robbery</strong>.'Other theft' indicates any type of theft that is not an auto theft</p>
+
+    <strong><p class="desc">Please note that all rates are per 100,000 people.</strong> See our notes on the <a href="#prop-notes">data</a>.</p>
+
+    <h3>Theft and auto theft</h3>
+    <p class="desc">The charts below show the top ten cities in the country with the highest average crime rates for auto thefts and thefts other than car thefts, from 2016 to 2020.<strong> Delhi</strong> has the highest theft rate &mdash; nearly seven times the national average. <strong>Vijaywada</strong> and <strong>Patna</strong> follow suit, with rates more than four times the national average.</p>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="" id="theft-graph">
+
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="" id="auto-graph">
+
+        </div>
+      </div>
+    </div>
+
+    <h3>Robberies and dacoities</h3>
+    <p class="desc">Robberies are thefts when, in their occurence, the offender voluntarily causes or attempts to cause an injury or death, according to <a href="http://www.indianlawcases.com/Act-Indian.Penal.Code,1860-1838">Indian Law Cases</a>. Cities from Maharashtra have a high averate of robberies and dacoities. The top three cities in both crimes are from India's most prosperous state.</p>
+
+    <p class="desc">Orange city <strong>Nagpur</strong> tops the list of robberies. <strong>Aurangabad</strong> has had the highest average rate of dacoities from 2016 to 2020. According to the lastest recorded data i.e. 2020, Nagpur's robbery rate was more than <strong>six times</strong> the national average. Aurangabad and Pune are second and third on this list.</p>
+
+    <div class="row">
+      <div class="col-sm-6">
+        <div class="" id="robbery-graph">
+
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="" id="dacoity-graph">
+
+        </div>
+      </div>
+    </div>
+
+
+    <h3>Arson</h3>
+    <p class="desc">Rate of arson as a crime have been on the lower side as compared to other property crimes in India. Two of the top three cities are from Chhattisgarh &mdash; <strong>Raipur</strong> and <strong>Durg-Bhilainagar</strong>.</p>
+    <div class="graph" id="arson-graph"></div>
+
+    <h3 id="prop-notes">Notes about the data</h3>
+    <p class="desc">Here is how the crimes have been defined.</p>
+    <ul class="about">
+      <li class="about">
+        <p><strong>Robbery</strong>: Robbery is a form of theft in which the offender, during the act, causes, or attempts to cause, death or injury to the victim, according to <a href="http://www.indianlawcases.com/Act-Indian.Penal.Code,1860-1851">Indian Law Cases</a>.</p>
+      </li>
+      <li class="about">
+        <p><strong>Dacoity</strong>: When five or more people commit robbery, it is considered a dacoity, according to <a href="http://www.indianlawcases.com/Act-Indian.Penal.Code,1860-1851">Indian Law Cases</a>. <a href="http://www.mid-day.com/articles/thane-police-constables-son-among-seven-held-for-dacoity/16980169">Here</a> is an example of dacoity case.</p>
+      </li>
+      <li class="about">
+        <p><strong>Arson</strong>: The National Crime Records Bureau has clubbed three sections of the Indian Penal Code under arson: <a href="https://indiankanoon.org/doc/1552733/">435</a>, <a href="https://indiankanoon.org/doc/1517318/">436</a>, and <a href="https://indiankanoon.org/doc/1144664/">438</a>. These deal with committing mischief with fire or explosive with intent to cause damage either to a house or other property.</p>
+      </li>
+    </ul>
+  </div>
+
+  <!-- <script src="{{url_for('static', filename='d3/d3.min.js')}}"></script> -->
+  <script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+  <script src="{{url_for('static', filename='highcharts.js')}}"></script>
+
+  <script type="text/javascript">
+  	var propData = {{ prop|tojson }};
+    var nationalData = {{ n|tojson }};
+
+    var indiaArson = nationalData.filter(function(d) {
+      return d.crime_name === "Arson" && d.city !== "India";
+    });
+
+    var natAvg = nationalData.filter(function(d) {
+      return d.city === "India";
+    });
+
+    var indiaKidnap = nationalData.filter(function(d) {
+      return d.crime_name === "Kidnapping & abduction";
+    });
+
+    var indiaRiot = nationalData.filter(function(d) {
+      return d.crime_name === "Riots";
+    });
+
+    
+    drawTheft(propData);
+    drawAuto(propData);
+    drawRobbery(propData);
+    drawDacoity(propData);
+    drawArson(propData);
+    
+    /* --------------------------------------------------
+    ----------------------- THEFT -----------------------
+    ----------------------------------------------------*/
+
+    function drawTheft(propData) {
+      var indiaTheft = propData.filter(function(d) {
+        return d.crime_name === "Other theft";
+      });
+
+      var natAvg = indiaTheft.filter(function(d) {
+        return d.city === "India";
+      });
+
+      console.log(natAvg)
+
+      indiaTheft.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      indiaTheft = indiaTheft.slice(0,10);
+
+      var categs = [],
+          data = [];
+
+      indiaTheft.forEach(function(d) {
+        categs.push(d.city);
+        data.push(+d.avg);
+      });
+
+  		$(function () {
+  			$('#theft-graph').highcharts({
+          chart: {
+                type: 'bar'
+            },
+          title: {
+              text: "Thefts (excluding auto thefts)",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: categs
+          },
+          yAxis: {
+              max: 175,
+              title: {
+                  text: 'Theft incidences per 100,000 people'
+              },
+              plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -10
+                    }
+              }]
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          series: [{
+            name: 'Thefts',
+            data: data
+          }]
+  	    });
+    	});
+    }
+
+    /* --------------------------------------------------
+    ----------------------- AUTO THEFT -----------------------
+    ----------------------------------------------------*/
+
+    function drawAuto(propData) {
+      var indiaAuto = propData.filter(function(d) {
+        return d.crime_name === "Auto theft";
+      });
+
+      var natAvg = indiaAuto.filter(function(d) {
+        return d.city === "India";
+      });
+
+      indiaAuto.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      indiaAuto = indiaAuto.slice(0,10);
+
+      var categs = [],
+          data = [];
+
+      indiaAuto.forEach(function(d) {
+        categs.push(d.city);
+        data.push(+d.avg);
+      });
+
+      $(function () {
+        $('#auto-graph').highcharts({
+          chart: {
+                type: 'bar'
+            },
+          title: {
+              text: "Cities with highest auto theft rates",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: categs
+          },
+          yAxis: {
+              title: {
+                  text: 'Auto thefts per 100,000 people'
+              },
+              plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -10
+                    }
+              }]
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          series: [{
+            name: 'Auto theft',
+            data: data
+          }]
+        });
+      });
+    }
+
+     /* --------------------------------------------------
+    ------------------- ROBBERIES ------------------------------
+    ----------------------------------------------------*/
+
+    function drawRobbery(propData) {
+      var indiaRobbery = propData.filter(function(d) {
+        return d.crime_name === "Robbery";
+      });
+
+      var natAvg = indiaRobbery.filter(function(d) {
+        return d.city === "India";
+      });
+
+      indiaRobbery.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      indiaRobbery = indiaRobbery.slice(0,10);
+
+      var categs = [],
+          data = [];
+
+      indiaRobbery.forEach(function(d) {
+        categs.push(d.city);
+        data.push(+d.avg);
+      });
+
+      $(function () {
+        $('#robbery-graph').highcharts({
+          chart: {
+                type: 'bar'
+            },
+          title: {
+              text: "Cities with highest robbery rates",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: categs
+          },
+          yAxis: {
+              title: {
+                  text: 'Robberies per 100,000 people'
+              },
+              plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -10
+                    }
+              }]
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          series: [{
+            name: 'Robbery',
+            data: data
+          }]
+        });
+      });
+    }
+
+    /* --------------------------------------------------
+    ------------------- DACOITY ------------------------------
+    ----------------------------------------------------*/
+
+
+    function drawDacoity(propData) {
+      var indiaDacoity = propData.filter(function(d) {
+        return d.crime_name === "Dacoity";
+      });
+
+      var natAvg = indiaDacoity.filter(function(d) {
+        return d.city === "India";
+      });
+
+      indiaDacoity.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      indiaDacoity = indiaDacoity.slice(0,10);
+
+      var categs = [],
+          data = [];
+
+      indiaDacoity.forEach(function(d) {
+        categs.push(d.city);
+        data.push(+d.avg);
+      });
+
+      $(function () {
+        $('#dacoity-graph').highcharts({
+          chart: {
+                type: 'bar'
+            },
+          title: {
+              text: "Cities with highest dacoity rates",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: categs
+          },
+          yAxis: {
+              title: {
+                  text: 'Dacoity incidences per 100,000 people'
+              },
+              plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -10
+                    }
+              }]
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          series: [{
+            name: 'Dacoity',
+            data: data
+          }]
+        });
+      });
+    }
+    
+    /* --------------------------------------------------
+    ------------------- ARSON ------------------------------
+    ----------------------------------------------------*/
+
+
+    function drawArson(propData) {
+      var indiaArson = propData.filter(function(d) {
+        return d.crime_name === "Arson";
+      });
+
+      var natAvg = indiaArson.filter(function(d) {
+        return d.city === "India";
+      });
+
+      indiaArson.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      indiaArson = indiaArson.slice(0,10);
+
+      var categs = [],
+          data = [];
+
+      indiaArson.forEach(function(d) {
+        categs.push(d.city);
+        data.push(+d.avg);
+      });
+
+      $(function () {
+        $('#arson-graph').highcharts({
+          chart: {
+                type: 'column'
+            },
+          title: {
+              text: "Cities with highest arson rates",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: categs
+          },
+          yAxis: {
+              title: {
+                  text: 'Arson crimes per 100,000 people'
+              },
+              plotLines: [{
+                  value: +natAvg[0].avg,
+                  color: 'green',
+                  dashStyle: 'shortdash',
+                  width: 2,
+                  label: {
+                      text: 'National average: ' + natAvg[0].avg,
+                      rotation: -90,
+                      y: -5,
+                      x: 20
+                  }
+              }]
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          series: [{
+            name: 'Arson',
+            data: data
+          }]
+        });
+      });
+    }
+
+    // Smooth scroll
+    $('a[href^="#"]').on('click',function (e) {
+      e.preventDefault();
+
+      var target = this.hash;
+      var $target = $(target);
+
+      $('html, body').stop().animate({
+          'scrollTop': $target.offset().top
+      }, 900, 'swing', function () {
+          window.location.hash = target;
+      });
+    });
+
+    </script>
+
+    {% include 'partials/footer.html' %}
+</body>
+</html>

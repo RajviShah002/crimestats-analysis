@@ -1,0 +1,842 @@
+{% include 'partials/head.html' %}
+<body>
+	{% include 'partials/navbar.html' %}
+	<div class="container">
+		<div class="main-header">
+			<h1 class="text-center">Crimes against women in India</h1>
+		</div>
+
+		<p class="desc">Crimes against women include, among others, the following: <strong>Rape, dowry deaths, cruelty by husbands and relatives, sexual harassment and molestation of women</strong>. We have chosen particularly to highlight these crimes because of their serious nature.</p>
+
+		<p class="desc">All crime rates are per <strong>100,000</strong>.</p>
+
+		<h3>Crimes against women</h3>
+		<p class="desc">The chart below shows the rate of crimes committed against women in the entire country. <strong>Cruelty by husband and relatives</strong> was the most common crime against women in India from 2016 to 2020. <strong>Sexual harassment and molestation of women and girls</strong> is the second-most common crime women face. <strong>Rape</strong> is another commmon crime committed against women in the country.</p>
+		<div class="graph" id="women-graph"></div>
+
+		<h3>Rape</h3>
+		<p class="desc">This chart shows the cities with the highest rape rates. All of the top five cities are in the northern part of the country. Gwalior, Jabalpur, and Bhopal &mdash; all from Madhya Pradesh &mdash; have the top three cities with highest rape rates in India.</p>
+		<p class="desc"> Notice the jump in rape rate after 2018. When the government <a href="http://www.ndtv.com/india-news/anti-rape-bill-cleared-by-lok-sabha-many-ministers-mps-missing-516728">toughened rape laws in 2019</a> and the media attention forced the police to look into complaints more seriously, <a href="http://www.thehindu.com/news/cities/Delhi/rape-cases-double-molestation-up-4-times-in-delhi/article5298622.ece">more victims emerged and the crime rate shot up</a>.</p>
+
+		<p class="desc"><a href="#metro-rape">Scroll down</a> to see how metro cities and non-metro cities compare on rape rates.</p>
+
+    <div class="row">
+  		<div class="col-sm-6">
+        <div class="" id="india-graph">
+
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="" id="rape-graph">
+
+        </div>
+      </div>
+    </div>
+
+		<p class="desc" id="metro-desc">The top ten non-metro cities have a rape crime rate far higher than the national average. Gwalior, which has the highest rate of rapes in the country, is thrice the national average. Capital city <strong>Delhi</strong> also emerged as one of the cities with the highest rate of rape crimes in the country.</p>
+		<div class="half col-md-6" id="metro-rape"></div>
+		<div class="half col-md-6" id="nm-rape"></div>
+
+		<h3>Dowry deaths</h3>
+		<p class="desc">Again, cities in north India dominate dowry deaths. Agra has the highest average rate of dowry deaths from 2016 to 2020, followed by Patna and Gwalior.</p>
+		<div class="graph" id="dowry-graph"></div>
+
+    <p class="desc">Delhi has the highest rate of dowry deaths. Two south Indian cities, Bengaluru and Hyderabad, follow. As for the non-metro cities, four of the cities are from Uttar Pradesh. As we have seen from the other charts, cities from Madhya Pradesh also figure high on the list of crimes against women. Three of them (Jabalpur, Gwalior, Indore) show up here as well.</p>
+    <div class="half col-md-6" id="metro-dowry"></div>
+    <div class="half col-md-6" id="nm-dowry"></div>
+
+		<h3>Cities with highest rates of sexual harassment and molestation</h3>
+		<p class="desc">Here are the cities where women face the most sexual harassment and molestation in their everyday lives. Vijayawada is the top city i.e. the city with the highest average rate of sexual harassment and molestation cases. Again, note that Kollam, a city from Kerala, a state with a matriarchial societal structure, figures in the top five of the list.</p>
+		<div class="graph" id="total-sh"></div> 
+
+    <div class="table-responsive">
+      <h3 class="text-center">Major crimes against women</h3>
+      <p class="desc">The following table shows all the major crimes against women recorded in India. This is not an exhaustive list, but covers most of the serious crimes committed against women.</p>
+      <table class="table table-condensed table-striped table-bordered">
+        <thead>
+          <tr>
+            <th class="text-center">City</th>
+            <th class="text-center">Crime</th>
+            <th class="text-right">2016</th>
+            <th class="text-right">2017</th>
+            <th class="text-right">2018</th>
+            <th class="text-right">2019</th>
+            <th class="text-right">2020</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for d in w_data %}
+          <tr>
+            <td class="text-center {{ d.class }}"><a href="{{url_for('city_page', city=d.city)}}">{{ d.city }}</a></td>
+            <td class="text-center"><a href="/crime/{{ d.crime_name }}">{{ d.crime_name }}</a></td>
+            <td class="text-right">{{ d['2016'] }}</td>
+            <td class="text-right">{{ d['2017'] }}</td>
+            <td class="text-right">{{ d['2018'] }}</td>
+            <td class="text-right">{{ d['2019'] }}</td>
+            <td class="text-right">{{ d['2020'] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+
+	</div>
+
+	<script src="{{url_for('static', filename='d3/d3.min.js')}}"></script>
+	<script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+	<script src="{{url_for('static', filename='highcharts.js')}}"></script>
+
+	<script type="text/javascript">
+		var womenData = {{ w_data|tojson }};
+		var natData = {{ n|tojson }};
+
+		// Get data for crimes against women in India
+		var indiaWomen = womenData.filter(function(d) {
+			return d.city === "India";
+		});
+
+		drawWomen(indiaWomen);
+		drawRape(womenData);
+		drawDowry(womenData);
+    drawMolest(womenData);
+    //drawKidnapWomen(womenData);
+
+		/* --------------------------------------------------
+    --------------- TOTAL CRIMES AGAINST WOMEN ----------
+    ----------------------------------------------------*/
+
+		function drawWomen(indiaWomen) {
+			var chartsToShow = [];
+      var chartObj = {};
+
+  		// Coerce to numbers
+  		indiaWomen.forEach(function(d) {
+        chartObj = {
+          name: d.crime_name,
+          data: [+d['2016'], +d['2017'], +d['2018'], +d['2019'], +d['2020']]
+        }
+        chartsToShow.push(chartObj);
+  		});
+
+  		indiaWomen.sort(function(a,b) {
+  			return +b.avg - +a.avg;
+  		});
+
+  		//console.log(indiaWomen)
+
+  		$(function () {
+  			$('#women-graph').highcharts({
+          chart: {
+            type: 'column'
+          },
+          title: {
+              text: "",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: ['2016', '2017', '2018', '2019', '2020']
+          },
+          yAxis: {
+              title: {
+                  text: 'Rate of crimes against women'
+              },
+              plotLines: [{
+                  value: 0,
+                  width: 1,
+                  color: '#808080'
+              }]
+          },
+          plotOptions: {
+              column: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          credits: {
+            enabled: false
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'top',
+              borderWidth: 0,
+              floating: false
+          },
+          series: chartsToShow
+  	    });
+    	});
+		}
+
+		/* ---------------------------------------------------
+    ------------------------- RAPE -----------------------
+    --------------------------------------------------- */
+
+		function drawRape(womenData) {
+      var chartsToShow = [];
+      var chartObj = {};
+
+      var indiaRape = womenData.filter(function(d) {
+        return d.crime_name === "Rape";
+      });
+
+      var natAvg = indiaRape.filter(function(d) {
+      	return d.city === "India";
+      });
+
+      var natChartData = [];
+
+      natAvg.forEach(function(d) {
+        chartObj = {
+          name: d.crime_name,
+          data: [+d['2016'], +d['2017'], +d['2018'], +d['2019'], +d['2020']]
+        }
+        natChartData.push(chartObj);
+      });
+
+      //console.log(natChartData)
+
+      var metroList = ["Delhi", "Mumbai", "Chennai", "Kolkata", "Pune", "Bengaluru", "Hyderabad", "Ahmedabad", "Chandigarh"];
+
+      var metros = indiaRape.filter(function(d) {
+        return metroList.indexOf(d.city) > -1;
+      });
+
+      var nonMetros = indiaRape.filter(function(d) {
+        return metroList.indexOf(d.city) == -1;
+      });
+
+      var metroCategs = [],
+          metroData = [],
+          nonMetroCategs = [],
+          nonMetroData = [];
+
+      indiaRape = indiaRape.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      // Top 5 kidnapping cities + India
+      var r5 = indiaRape.slice(0,5);
+      //r5.push(natAvg[0]);
+      //console.log(r5)
+
+      r5.forEach(function(d) {
+        chartObj = {
+          name: d.city,
+          data: [+d['2016'], +d['2017'], +d['2018'], +d['2019'], +d['2020']]
+        }
+        chartsToShow.push(chartObj);
+      });
+
+      // Build data for metro chart
+      metros.forEach(function(d) {
+        metroCategs.push(d.city);
+        metroData.push(+d.avg);
+      });
+
+      nonMetros.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      nonMetros = nonMetros.slice(0,10);
+
+      // Build data for non-metro chart
+      nonMetros.forEach(function(d) {
+        nonMetroCategs.push(d.city);
+        nonMetroData.push(+d.avg);
+      });
+
+
+      // Main rape graph
+      $(function () {
+        $('#rape-graph').highcharts({
+          chart: {
+            type: 'column'
+          },
+          title: {
+              text: "Cities with highest rape rates",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: ['2016', '2017', '2018', '2019', '2020']
+          },
+          yAxis: {
+              title: {
+                  text: 'Rate of rape'
+              },
+              plotLines: [{
+                  value: +natAvg[0].avg,
+                  color: 'green',
+                  dashStyle: 'shortdash',
+                  width: 2,
+                  label: {
+                      text: 'National average: ' + natAvg[0].avg,
+                      rotation: -90,
+                      y: -5,
+                      x: 20
+                  }
+            }]
+          },
+          credits: {
+            enabled: false
+          },
+          plotOptions: {
+              column: {
+                dataLabels: {
+                    enabled: false
+                }
+              }
+            },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          series: chartsToShow
+        });
+      });
+
+      $(function () {
+        $('#india-graph').highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Rape rate in India'
+            },
+
+            xAxis: {
+                categories: ['2016', '2017', '2018', '2019', '2020'],
+                crosshair: true
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Rapes per 100,000 people'
+                },
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0,
+                    dataLabels: {
+                      enabled: true
+                  }
+                }
+            },
+            credits: {
+               enabled: false
+            },
+            series: natChartData
+          });
+      });
+
+
+
+      // Metro graph
+      $(function () {
+        $('#metro-rape').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Rate of rape in metros'
+            },
+            // subtitle: {
+            //     text: 'Source: WorldClimate.com'
+            // },
+            xAxis: {
+                categories: metroCategs
+            },
+            yAxis: {
+                min: 0,
+                max: 17.5,
+                title: {
+                    text: 'Crime rate per 100,000 people',
+                    align: 'high'
+                },
+                labels: {
+                  overflow: 'justify'
+                },
+                plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: 10,
+                        x: 10
+                    }
+                }]
+              },
+            credits: {
+              enabled: false
+            },
+            plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+            series: [{
+              name: 'Rape',
+              data: metroData
+            }]
+          });
+        });
+
+      // Non-metro graph
+      $(function () {
+        $('#nm-rape').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Rate of rape in non-metro cities'
+            },
+            // subtitle: {
+            //     text: 'Source: WorldClimate.com'
+            // },
+            xAxis: {
+                categories: nonMetroCategs
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Crime rate per 100,000 people',
+                    align: 'high'
+                },
+                labels: {
+                  overflow: 'justify'
+                },
+                plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -10
+                    }
+                }]
+              },
+            credits: {
+              enabled: false
+            },
+            plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+            series: [{
+              name: 'Rape',
+              data: nonMetroData
+            }]
+          });
+        });
+    	}
+
+    /* ---------------------------------------------------
+    ------------------------- DOWRY -----------------------
+    --------------------------------------------------- */
+
+    function drawDowry(womenData) {
+      var chartsToShow = [];
+      var chartObj = {};
+
+      var indiaDowry = womenData.filter(function(d) {
+        return d.crime_name === "Dowry deaths";
+      });
+
+      var natAvg = indiaDowry.filter(function(d) {
+      	return d.city === "India";
+      });
+
+      var metroList = ["Delhi", "Mumbai", "Chennai", "Kolkata", "Pune", "Bengaluru", "Hyderabad", "Ahmedabad", "Chandigarh"];
+
+      var metros = indiaDowry.filter(function(d) {
+        return metroList.indexOf(d.city) > -1;
+      });
+
+      var nonMetros = indiaDowry.filter(function(d) {
+        return metroList.indexOf(d.city) == -1;
+      });
+
+      var metroCategs = [],
+          metroData = [],
+          nonMetroCategs = [],
+          nonMetroData = [];
+
+      indiaDowry = indiaDowry.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      // Top 10 kidnapping cities + India
+      var d5 = indiaDowry.slice(0,5);
+      //d5.push(natAvg[0]);
+
+      //console.log(d5)
+
+      d5.forEach(function(d) {
+        chartObj = {
+          name: d.city,
+          data: [+d['2016'], +d['2017'], +d['2018'], +d['2019'], +d['2020']]
+        }
+        chartsToShow.push(chartObj);
+      });
+
+      // Build data for metro chart
+      metros.forEach(function(d) {
+        metroCategs.push(d.city);
+        metroData.push(+d.avg);
+      });
+
+      nonMetros.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      nonMetros = nonMetros.slice(0,10);
+
+      // Build data for non-metro chart
+      nonMetros.forEach(function(d) {
+        nonMetroCategs.push(d.city);
+        nonMetroData.push(+d.avg);
+      });
+
+
+      // Main dowry graph
+      $(function () {
+        $('#dowry-graph').highcharts({
+          chart: {
+            type: 'column'
+          },
+          title: {
+              text: 'Cities with highest rate of dowry deaths',
+              x: -20 //center
+          },
+          xAxis: {
+              categories: ['2016', '2017', '2018', '2019', '2020']
+          },
+          yAxis: {
+              title: {
+                  text: 'Crime rate'
+              },
+              plotLines: [{
+                  value: +natAvg[0].avg,
+                  color: 'green',
+                  dashStyle: 'shortdash',
+                  width: 2,
+                  label: {
+                      text: 'National average: ' + natAvg[0].avg,
+                      rotation: -90,
+                      y: -5,
+                      x: 20
+                  }
+              }]
+          },
+          plotOptions: {
+              column: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          series: chartsToShow
+        });
+      });
+
+      // Metro graph for dowries
+      $(function () {
+        $('#metro-dowry').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Rate of dowry deaths in metros'
+            },
+            // subtitle: {
+            //     text: 'Source: WorldClimate.com'
+            // },
+            xAxis: {
+                categories: metroCategs
+            },
+            yAxis: {
+                min: 0,
+                max: 6,
+                title: {
+                    text: 'Crime rate per 100,000 people',
+                    align: 'high'
+                },
+                labels: {
+                  overflow: 'justify'
+                },
+                plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -50
+                    }
+                }]
+              },
+            credits: {
+              enabled: false
+            },
+            plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+            series: [{
+              name: 'Dowry',
+              data: metroData
+            }]
+          });
+        });
+
+      // Non metro graph for dowries
+      $(function () {
+        $('#nm-dowry').highcharts({
+            chart: {
+                type: 'bar'
+            },
+            title: {
+                text: 'Rate of dowry deaths in non-metro cities'
+            },
+            // subtitle: {
+            //     text: 'Source: WorldClimate.com'
+            // },
+            xAxis: {
+                categories: nonMetroCategs
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Crime rate per 100,000 people',
+                    align: 'high'
+                },
+                labels: {
+                  overflow: 'justify'
+                },
+                plotLines: [{
+                    value: +natAvg[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natAvg[0].avg,
+                        rotation: 0,
+                        y: -5,
+                        x: -10
+                    }
+                }]
+              },
+            credits: {
+              enabled: false
+            },
+            plotOptions: {
+              bar: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+            series: [{
+              name: 'Dowry',
+              data: nonMetroData
+            }]
+          });
+        });
+    	}
+
+    /* --------------------------------------------------
+    ------------- MOLESTATION AND SEXUAL HARASSMENT ----------
+    ----------------------------------------------------*/
+
+    function drawMolest(indiaWomen) {
+      var chartsToShow = [];
+      var chartObj = {};
+
+      var indiaHarass = womenData.filter(function(d) {
+        return d.crime_name === "Sexual harassment and molestation of women";
+      });
+      var natHarass = indiaHarass.filter(function(d) {
+        return d.city === "India";
+      });
+
+      // Sort in descending order
+      indiaHarass.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      // Get top 5
+      indiaHarass = indiaHarass.slice(0,10);
+
+      var harassCategs = [],
+          harassData = [];
+
+      indiaHarass.forEach(function(d) {
+        harassCategs.push(d.city);
+        harassData.push(+d.avg);
+      });
+
+      $(function () {
+        $('#total-sh').highcharts({
+            chart: {
+                type: 'column'
+            },
+            title: {
+                text: 'Rate of sexual harassment crimes'
+            },
+
+            xAxis: {
+                categories: harassCategs,
+                crosshair: true,
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                    text: 'Crime rate per 100,000 people'
+                },
+                plotLines: [{
+                    value: +natHarass[0].avg,
+                    color: 'green',
+                    dashStyle: 'shortdash',
+                    width: 2,
+                    label: {
+                        text: 'National average: ' + natHarass[0].avg,
+                        rotation: -90,
+                        y: -10,
+                        x: 10
+                    }
+                }]
+            },
+            plotOptions: {
+                column: {
+                    pointPadding: 0.2,
+                    borderWidth: 0,
+                    dataLabels: {
+                      enabled: true
+                  }
+                }
+            },
+            credits: {
+               enabled: false
+            },
+            series: [{
+                name: 'Sexual harassment',
+                data: harassData,
+                dataLabels: {
+                      enabled: true
+                  }
+            }]
+          });
+      });
+
+      // $(function () {
+      //   $('#nm-sh').highcharts({
+      //       chart: {
+      //           type: 'column'
+      //       },
+      //       title: {
+      //           text: 'Rate of molestation'
+      //       },
+
+      //       xAxis: {
+      //           categories: molestCategs,
+      //           crosshair: true
+      //       },
+      //       yAxis: {
+      //           min: 0,
+      //           title: {
+      //               text: 'Crime rate per 100,000 people'
+      //           },
+      //           plotLines: [{
+      //               value: +natMolest[0].avg,
+      //               color: 'green',
+      //               dashStyle: 'shortdash',
+      //               width: 2,
+      //               label: {
+      //                   text: 'National average: ' + natMolest[0].avg,
+      //                   rotation: -90,
+      //                   y: -10,
+      //                   x: 10
+      //               }
+      //           }]
+      //       },
+      //       plotOptions: {
+      //           column: {
+      //               pointPadding: 0.2,
+      //               borderWidth: 0,
+      //               dataLabels: {
+      //                 enabled: true
+      //             }
+      //           }
+      //       },
+      //       credits: {
+      //          enabled: false
+      //       },
+      //       series: [{
+      //           name: 'Molestation',
+      //           data: molestData
+
+      //       }]
+      //     });
+      // });
+    }
+
+    // Smooth scroll
+    $('a[href^="#"]').on('click',function (e) {
+		  e.preventDefault();
+
+		  var target = this.hash;
+		  var $target = $(target);
+
+		  $('html, body').stop().animate({
+		      'scrollTop': $target.offset().top
+		  }, 900, 'swing', function () {
+		      window.location.hash = target;
+		  });
+		});
+
+	</script>
+
+  {% include 'partials/footer.html' %}
+
+</body>
+</html>

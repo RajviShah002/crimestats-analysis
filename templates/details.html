@@ -1,0 +1,46 @@
+{% include 'partials/head.html' %}
+<body>
+{% include 'partials/navbar.html' %}
+  <div class="container">
+    <div class="row">
+      <div class="main-header">
+        <h1 class="text-center">Details of the Project</h1>
+      </div>
+    </div>
+
+    
+    <h3>The data</h3>
+    <p class="desc">The data comes from India's <a href="http://ncrb.gov.in">National Crime Records Bureau</a>, which releases a compiled report of crimes recorded by police stations all around the country. This application has data from 2016 to 2020, i.e., the five latest years of data available. The latest report can be found <a href="https://ncrb.gov.in/en/Crime-in-India-2020" target="_blank">here</a>. Reports from the previous years can be found <a href="https://ncrb.gov.in/en/crime-in-india" target="_blank">here</a>.</p>
+
+    <p class="desc">There are some assumptions and modifications to the data that are necessary to point out.</p>
+    <ul class="about">
+      <li class="about">
+        <p><strong>Cities and average crime rate</strong>: The Bureau didn't report crimes for 18 cities in 2016. These cities were added in consequent years. While calculating average for such cities (Chandigarh, for instance), the average is for over a four-year period (2017 - 2020). This, we believe, is still a better choice than to consider 0 as the crime rate for 2016, since that would present a drastically skewed picture.</p>
+      </li>
+
+      <li class="about">
+        <p><strong>Categories</strong>: The Bureau categorizes crimes as 'violent', 'crimes against women', 'property crime', 'economic crime', and so on. We have followed the same nomenclature. You can see their categorization <a href="https://ncrb.gov.in/en/crime-in-india-table-addtional-table-and-chapter-contents?field_date_value[value][year]=2020&field_select_table_title_of_crim_value=All&items_per_page=All" target="_blank">here<sup>[pdf]</sup></a>.
+        </p>
+        <p>Furthermore, in order to make navigation of data easier and the analysis more lucid, we have restricted ourselves to displaying a smaller subset of all the crimes recorded in the original data. These include the most serious crimes in each category and provide a fair insight into the criminal makeup of each city:</p>
+      </li>
+
+      <li class="about">
+        <p><strong>Hurt</strong>: Until 2019, the Bureau recorded assault crimes i.e. crimes for injuring people through various means under the 'Hurt' category. These were crimes recorded under Sections 323-333, 335-338, all of them dealing with causing bodily harm to people. However, in 2020, the Bureau started reporting crimes under the head of 'Grievous Hurt', with sub-categories that included crimes like acid attack, attempt to acid attack, etc. We have reported these crimes under the 'Hurt' category for 2020. The sub-sections also appear on the app, but we have mainly considered the overall 'Hurt' crimes for our reporting.</p>
+      </li>
+      
+      <li class="about"> Here is a list of crimes we have chosen to display:
+        <p><strong>Violent Crimes</strong>: Attempt to commit murder, Culpable homicide not amounting to murder, kidnapping &amp; abduction, murder, and riots</p>
+
+        <p><strong>Crimes Against Women</strong>: Cruelty by husband or his relatives, dowry deaths, rape, and sexual harassment and molestation of women</p>
+
+        <p><strong>Property crimes</strong>: Arson, auto theft, burglary, dacoity, Other theft, and robbery</p>
+
+        <p><strong>Economic crimes</strong>: Cheating, criminal breach of trust, counterfeiting and forgery</p>
+      </li>
+    </ul>    
+    
+  </div>
+
+  {% include 'partials/footer.html' %}
+</body>
+</html>

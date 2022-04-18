@@ -1,0 +1,142 @@
+{% include 'partials/head.html' %}
+
+<body>
+  {% include 'partials/navbar.html' %}
+  <div class="container">
+    <div class="row">
+      <div class="main-header">
+        <h1 class="text-center">Cities</h1>
+      </div>
+    </div>
+
+    <h3>Overall crime rate</h3>
+    <p class="desc">The chart below shows cities with the top 20 highest average crime rate. <strong>Kochi</strong> tops the list and has a crime rate five times the national average. <strong>Four</strong> cities among the top 10 are from <strong>Madhya Pradesh</strong>.</p>
+    <div id="overall-graph" class="graph"></div>   
+
+    <p class="desc">The table below lists the overall crime rate of all the cities in India and how it has changed from 2016 to 2020. Click on a city name below to navigate to the page for a particular city.</p>
+
+    <div class="table-responsive">
+      <h3 class="text-center">Overall crime rates in cities</h3>
+      <table class="table table-condensed table-striped table-bordered" id="#city-table">
+        <thead>
+          <tr>
+            <th class="text-center">City</th>
+            <th class="text-right">2016</th>
+            <th class="text-right">2017</th>
+            <th class="text-right">2018</th>
+            <th class="text-right">2019</th>
+            <th class="text-right">2020</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in cities %}
+          <tr>
+            <td class="text-center"><a href="/cities/{{ c.city }}" target="_blank">{{ c.city }}</a></td>
+            <td class="text-right">{{ c['2016'] }}</td>
+            <td class="text-right">{{ c['2017'] }}</td>
+            <td class="text-right">{{ c['2018'] }}</td>
+            <td class="text-right">{{ c['2019'] }}</td>
+            <td class="text-right">{{ c['2020'] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+  <script src="{{url_for('static', filename='highcharts.js')}}"></script>
+
+  <script type="text/javascript">
+    var cityData = {{ cities|tojson }};
+    var natData = {{ n|tojson }};
+
+    drawChart(cityData);
+
+    /* --------------------------------------------------
+    ------------------- MAIN CRIME CHART --------------------
+    ----------------------------------------------------*/
+
+    function drawChart(cityData) {
+
+      var categs = [],
+          data = [];
+
+      var cityData = cityData.sort(function(a,b) {
+        return +b.avg - +a.avg;
+      });
+
+      var natAvg = natData.filter(function(d) {
+        return d.city === "India" 
+      });
+
+      // Get the top 20 cities and build data to display on chart
+      cityData = cityData.slice(0,20);
+      cityData.forEach(function(d) {
+        categs.push(d.city);
+        data.push(+d.avg);
+      });
+
+      $(function () {
+        $('#overall-graph').highcharts({
+          chart: {
+                type: 'column'
+            },
+          title: {
+              text: "Cities with highest crime rates",
+              x: -20 //center
+          },
+          xAxis: {
+              categories: categs
+          },
+          yAxis: {
+              title: {
+                  text: 'Crimes per 100,000 people'
+              },
+              plotLines: [{
+                  value: +natAvg[0].avg,
+                  color: 'green',
+                  dashStyle: 'shortdash',
+                  width: 2,
+                  label: {
+                      text: 'National average: ' + natAvg[0].avg,
+                      rotation: -90,
+                      y: -5,
+                      x: 10
+                  }
+              }]
+          },
+          tooltip: {
+              valueSuffix: ' crimes per 100,000'
+          },
+          credits: {
+            enabled: false
+          },
+          legend: {
+              layout: 'horizontal',
+              align: 'right',
+              verticalAlign: 'bottom',
+              borderWidth: 0,
+              floating: false
+          },
+          plotOptions: {
+              column: {
+                dataLabels: {
+                    enabled: true
+                }
+              }
+            },
+          series: [{
+            name: 'Total crimes',
+            data: data
+          }]
+        });
+      });
+
+    }
+
+  </script>
+
+  {% include 'partials/footer.html' %}
+</body>
+</html>

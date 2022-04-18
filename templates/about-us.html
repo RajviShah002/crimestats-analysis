@@ -1,0 +1,56 @@
+{% include 'partials/head.html' %}
+<body>
+{% include 'partials/navbar.html' %}
+  <div class="container">
+    <div class="row">
+      <div class="main-header">
+        <h1 class="text-center">About Us</h1>
+      </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm-6 col-md-4">
+            <div class="about-box">
+                <img src="{{url_for('static', filename='assets/rajvi.jpg')}}" alt="Rajvi's pic" width="299" height="350"/>
+                <h5 class="about-name">Rajvi Shah</h5>
+                <ul style="list-style-type: disc;">
+                    <li>                                            
+                        <a href="https://github.com/RajviShah002" target="_blank" rel="noreferrer">Github</a>
+                    </li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/rajvishah002/" target="_blank" rel="noreferrer">LinkedIn</a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/shahrajvii/" target="_blank" rel="noreferrer">Instagram</a>
+                    </li>
+                    <li>
+                        <a href="mailto:rajvishah365@gmail.com" target="_blank" rel="noreferrer">Mail</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-sm-6 col-md-4">
+            <div class="about-box">
+                <img src="{{url_for('static', filename='assets/shraddha.jpg')}}" alt="Rajvi's pic" width="299" height="350"/>
+                <h5 class="about-name">Shraddha Tandel</h5>
+                <ul style="list-style-type: disc;">
+                    <li>                                            
+                        <a href="https://github.com/Shraddha-06" target="_blank" rel="noreferrer">Github</a>
+                    </li>
+                    <li>
+                        <a href="https://www.linkedin.com/in/shraddha-tandel-79839a1a4/" target="_blank" rel="noreferrer">LinkedIn</a>
+                    </li>
+                    <li>
+                        <a href="https://www.instagram.com/_.shraddha._06/" target="_blank" rel="noreferrer">Instagram</a>
+                    </li>
+                    <li>
+                        <a href="mailto:shraddhatandel0611@gmail.com" target="_blank" rel="noreferrer">Mail</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+  </div>  
+  {% include 'partials/footer.html' %}
+</body>
+</html>

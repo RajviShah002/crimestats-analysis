@@ -1,0 +1,176 @@
+{% include 'partials/head.html' %}
+
+<body>
+{% include 'partials/navbar.html' %}  
+  
+  <!--Main content-->
+  <div class="container">
+
+    <div id="header">
+      <h1 class="text-center">CrimeStats Analysis</h1>
+      <h3 class="text-center">Opening up India's crime data</h3>
+    </div>
+
+    <section id="map-section">
+      <div class="row">
+        <div class="col-sm-12">
+          <p class="intro-text text-center"> <span class="highlight">CrimeStats Analysis</span> makes it easy to look up crime statistics on more than 50 Indian cities, without having to parse through dense government PDFs and websites.</p>
+        </div>
+      </div>
+
+      <div id="big-wrapper">
+        <p class="big-text text-justify">Know your city. Track different kinds of crimes.</p>
+        
+        <p class="text-center">Pick a city from the map or menu. Choose <a href="#scroll-point"> crime categories</a>. Or read <a href="{{url_for('story_page')}}"> our stories</a>.</p>
+      </div>
+      
+      <form id="user-location">  
+        <select name="/city/" class="form-control" id="city-name">
+          <option value="Agra">Agra</option>
+          <option value="Ahmedabad">Ahmedabad</option>
+          <option value="Allahabad">Allahabad</option>
+          <option value="Amritsar">Amritsar</option>
+          <option value="Asansol">Asansol</option>
+          <option value="Aurangabad">Aurangabad</option>
+          <option value="Bengaluru">Bengaluru</option>
+          <option value="Bhopal">Bhopal</option>
+          <option value="Chandigarh">Chandigarh</option>
+          <option value="Chennai">Chennai</option>
+          <option value="Coimbatore">Coimbatore</option>
+          <option value="Delhi">Delhi</option>
+          <option value="Dhanbad">Dhanbad</option>
+          <option value="Durg-Bhilainagar">Durg-Bhilainagar</option>
+          <option value="Faridabad">Faridabad</option>
+          <option value="Ghaziabad">Ghaziabad</option>
+          <option value="Gwalior">Gwalior</option>
+          <option value="Hyderabad">Hyderabad</option>
+          <option value="Indore">Indore</option>
+          <option value="Jabalpur">Jabalpur</option>
+          <option value="Jaipur">Jaipur</option>
+          <option value="Jamshedpur">Jamshedpur</option>
+          <option value="Jodhpur">Jodhpur</option>
+          <option value="Kannur">Kannur</option>
+          <option value="Kanpur">Kanpur</option>
+          <option value="Kochi">Kochi</option>
+          <option value="Kolkata">Kolkata</option>
+          <option value="Kollam">Kollam</option>
+          <option value="Kota">Kota</option>
+          <option value="Kozhikode">Kozhikode</option>
+          <option value="Lucknow">Lucknow</option>
+          <option value="Ludhiana">Ludhiana</option>
+          <option value="Madurai">Madurai</option>
+          <option value="Malappuram">Malappuram</option>
+          <option value="Meerut">Meerut</option>
+          <option value="Mumbai">Mumbai</option>
+          <option value="Nagpur">Nagpur</option>
+          <option value="Nasik">Nasik</option>
+          <option value="Patna">Patna</option>
+          <option value="Pune">Pune</option>
+          <option value="Raipur">Raipur</option>
+          <option value="Rajkot">Rajkot</option>
+          <option value="Ranchi">Ranchi</option>
+          <option value="Srinagar">Srinagar</option>
+          <option value="Surat">Surat</option>
+          <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+          <option value="Thrissur">Thrissur</option>
+          <option value="Tiruchirappalli">Tiruchirappalli</option>
+          <option value="Vadodara">Vadodara</option>
+          <option value="Varanasi">Varanasi</option>
+          <option value="Vasai-Virar">Vasai-Virar</option>
+          <option value="Vijayawada">Vijayawada</option>
+          <option value="Vishakhapatnam">Vishakhapatnam</option>
+        </select>
+        <input type="submit" id="city-button" class="btn btn-primary" value="Select" />
+      </form>  
+            
+      <div id="map" max-width="65em"> </div
+
+    </section>
+    
+    <section id="crime-section">
+      
+      <div id="main-header">
+        <h2 class="head" id="scroll-point">Crimes</h2>
+        <p class="explainer">Choose a category of crime</p>
+        <p class="desc" id="crime-select">'Violent crimes' include crimes like murder, attempt to commit murder, riots. 'Crimes against women' include rape, sexual harassment and molestation, dowry deaths. Burglary, arson, car thefts are among those classified as 'property crimes'. Economic crimes include, among others, cheating and forgery.</p>
+      </div>
+
+      <div class="row">
+        <a href="{{ url_for('violent_landing_page') }}">
+          <div class="col-sm-3">        
+            <div class="crime-box">
+              <h3 class="crime-categ">Violent Crimes</h3>
+              <img class="img-responsive crime-logo" src="{{url_for('static', filename='assets/violent.png')}}"/>
+            </div>     
+          </div>
+        </a>  
+        
+        <a href="{{ url_for('women_landing_page') }}">
+          <div class="col-sm-3">      
+            <div class="crime-box">
+              <h3 class="crime-categ">Crimes Against Women</h3>
+              <img class="img-responsive crime-logo" src="{{url_for('static', filename='assets/women.png')}}"/>
+            </div>     
+          </div>
+        </a> 
+
+        <a href="{{ url_for('prop_landing_page') }}">  
+          <div class="col-sm-3">        
+            <div class="crime-box">
+              <h3 class="crime-categ">Property Crimes</h3>
+              <img class="img-responsive crime-logo" src="{{url_for('static', filename='assets/property.png')}}"/>
+            </div>     
+          </div>
+        </a>  
+
+        <a href="{{ url_for('econ_landing_page') }}">  
+          <div class="col-sm-3">         
+            <div class="crime-box">
+              <h3 class="crime-categ">Economic Crimes</h3>
+              <img class="img-responsive crime-logo" src="{{url_for('static', filename='assets/economic.png')}}"/>
+            </div>     
+          </div>
+        </a> 
+      </div>
+    </section>
+
+    <section id="list-section">
+      <div class="row">
+
+        <h2 class="head">Crime rates in cities</h2>
+        <p class="desc">Here are the top five cities with the highest average crime rates in different crime categories. The average has been calculated using crime rates from 2016 to 2020.
+        
+       {% for l in list_data %} 
+          <div class="col-xs-12 col-sm-6 col-md-4">
+            <h3 class="list-head">{{ categs[loop.index0] }}</h3>
+            <ul class="list">
+              {% for d in l %}
+              <li>
+                <a href="{{ url_for('city_page', city=d.city) }}">{{ d.city }}</a>
+                <p class="list-sub">{{ d.avg }} per 100,000 people</p>
+              </li>
+              {% endfor %}
+            </ul>  
+          </div>
+        {% endfor %}
+
+        <!--/list-->
+
+      </div>
+      <!--./row-->
+      
+    </section>
+
+  </div>
+
+  <script src="{{url_for('static', filename='jquery.min.js')}}"></script>
+  <script src="{{url_for('static', filename='collapse.js')}}"></script>
+  <script src="{{url_for('static', filename='d3/d3.min.js')}}"></script>
+  <script src="{{url_for('static', filename='d3/topojson.v1.js')}}"></script>
+  <script src="{{url_for('static', filename='d3/d3-tip.js')}}"></script>
+  <script src="{{url_for('static', filename='data/cities.js')}}"></script>
+  <script src="{{url_for('static', filename='script.js')}}"></script>
+
+  {% include 'partials/footer.html' %}
+</body>
+</html>
